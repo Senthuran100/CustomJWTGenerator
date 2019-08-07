@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.wso2.carbon.apimgt.api.model.APIIdentifier;
 import java.util.Set;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class CustomTokenGenerator extends JWTGenerator {
 
@@ -27,8 +29,6 @@ public class CustomTokenGenerator extends JWTGenerator {
         }
         // Get default claims from super
         Map<String, String> claims = super.populateStandardClaims(validationContext);
-//        Get token type
-//        boolean isApplicationToken = validationContext.getValidationInfoDTO().getUserType().equalsIgnoreCase(APIConstants.ACCESS_TOKEN_USER_TYPE_APPLICATION);
         return claims;
 
     }
@@ -39,13 +39,15 @@ public class CustomTokenGenerator extends JWTGenerator {
         if (customClaims == null){
             customClaims = new HashMap<String, String>();
         }
-        HashMap<String, String> apiscope=new HashMap<String, String>();
         Set<Scope> scopes= apiMgtDAO.getAPIScopes(new APIIdentifier( validationContext.getValidationInfoDTO().getApiPublisher(),validationContext.getValidationInfoDTO().getApiName(),validationContext.getVersion()));
+        JSONObject scoperole = new JSONObject();
         for (Scope scope : scopes) {
-            apiscope.put(scope.getKey(),scope.getRoles());
+            JSONArray roles = new JSONArray();
+            roles.add(scope.getRoles());
+            scoperole.put(scope.getKey(),roles);
         }
-        if(!apiscope.isEmpty()) {
-            customClaims.put(getDialectURI() + "/scopesRoles", apiscope.toString());
+        if(!scoperole.isEmpty()) {
+            customClaims.put(getDialectURI() + "/scopesroles", scoperole.toJSONString());
         }
         return customClaims;
     }
