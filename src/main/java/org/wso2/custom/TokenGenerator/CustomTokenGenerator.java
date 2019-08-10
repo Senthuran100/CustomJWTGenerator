@@ -36,6 +36,8 @@ public class CustomTokenGenerator extends JWTGenerator {
     @Override
     public Map<String, String> populateCustomClaims(TokenValidationContext validationContext) throws APIManagementException {
         Map<String, String> customClaims = super.populateCustomClaims(validationContext);
+        String Appname;
+        String Apptier;
         if (customClaims == null){
             customClaims = new HashMap<String, String>();
         }
@@ -46,7 +48,14 @@ public class CustomTokenGenerator extends JWTGenerator {
             roles.add(scope.getRoles());
             scoperole.put(scope.getKey(),roles);
         }
-        if(!scoperole.isEmpty()) {
+        Appname=validationContext.getValidationInfoDTO().getApplicationName();
+        Apptier=validationContext.getValidationInfoDTO().getApplicationTier();
+
+        if(Appname!=null && Apptier!=null){
+            customClaims.put(getDialectURI()+"/applicationname",Appname);
+            customClaims.put(getDialectURI()+"/applicationtier",Apptier);
+        }
+    if(!scoperole.isEmpty()) {
             customClaims.put(getDialectURI() + "/scopesroles", scoperole.toJSONString());
         }
         return customClaims;
